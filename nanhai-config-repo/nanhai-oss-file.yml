@@ -1,0 +1,8 @@
+#orderservice的日志级别配置
+logging:
+  level.org.springframework: INFO
+
+#正式环境所使用的MySQL的数据库配置
+
+#其他属性值配置
+foo: I'm default value

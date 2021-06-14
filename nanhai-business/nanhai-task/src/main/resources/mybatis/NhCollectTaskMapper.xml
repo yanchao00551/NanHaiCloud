@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.nanhai.mapper.NhCollectTaskMapper">
+
+    <resultMap id="rm" type="com.nanhai.core.persistence.beans.NhCollectTask">
+        <result property="id" jdbcType="BIGINT" column="id"/>
+        <result property="collectTaskPlanId" jdbcType="BIGINT" column="collect_task_plan_id"/>
+        <result property="collectTaskTownId" jdbcType="VARCHAR" column="collect_task_town_id"/>
+        <result property="collectTaskVillageId" jdbcType="VARCHAR" column="collect_task_village_id"/>
+        <result property="createTime" jdbcType="TIMESTAMP" column="create_time"/>
+        <result property="updateTime" jdbcType="TIMESTAMP" column="update_time"/>
+        <result property="planName" jdbcType="VARCHAR" column="plan_name"/>
+        <result property="planStartTime" jdbcType="TIMESTAMP" column="plan_start_time"/>
+        <result property="planEndTime" jdbcType="TIMESTAMP" column="plan_end_time"/>
+        <result property="administrativeName" jdbcType="VARCHAR" column="administrative_name"/>
+        <result property="collectTaskVillageName" jdbcType="VARCHAR" column="collect_task_village_name"/>
+
+
+        <collection property="planInfos" column="plan_id" javaType="ArrayList"
+                    ofType="com.nanhai.core.persistence.beans.NhPlanInfo">
+            <result property="id" jdbcType="BIGINT" column="plan_id"/>
+            <result property="planCode" jdbcType="VARCHAR" column="plan_code"/>
+            <result property="createPerson" jdbcType="VARCHAR" column="create_person"/>
+            <result property="planEndTime" jdbcType="TIMESTAMP" column="plan_end_time"/>
+            <result property="planFiles" jdbcType="VARCHAR" column="plan_files"/>
+            <result property="planName" jdbcType="VARCHAR" column="plan_name"/>
+            <result property="planRequire" jdbcType="BIT" column="plan_require"/>
+            <result property="planStartTime" jdbcType="TIMESTAMP" column="plan_start_time"/>
+            <result property="planStatus" jdbcType="BIGINT" column="plan_status"/>
+            <result property="updatePerson" jdbcType="BIGINT" column="update_person"/>
+            <result property="createTime" jdbcType="TIMESTAMP" column="create_time"/>
+            <result property="updateTime" jdbcType="TIMESTAMP" column="update_time"/>
+        </collection>
+
+
+    </resultMap>
+
+
+    <select id="findPageBreakByCondition" parameterType="com.nanhai.core.business.vo.CollectTaskConditionVO"
+            resultMap="rm">
+
+        SELECT a.`id`, a.`collect_task_plan_id`, a.`collect_task_town_id`, a.`collect_task_village_id`, a.`create_time`,
+        a.`update_time`,b.plan_name,b.plan_start_time,b.plan_end_time,c.administrative_name,area.administrative_name as `collect_task_village_name`
+        FROM nh_collect_task AS a
+        INNER JOIN (SELECT id as bid,plan_name,plan_start_time,plan_end_time
+        FROM nh_plan_info ) as b on a.collect_task_plan_id = b.bid
+        LEFT JOIN   nh_administrative_area AS area on a.collect_task_village_id=area.administrative_code
+        <choose>
+            <when test="userLevel != null">
+                <if test='userLevel == "3"'>
+                    LEFT JOIN nh_administrative_area AS c ON a.collect_task_town_id = c.administrative_code
+                    WHERE 1=1
+                </if>
+                <if test='userLevel == "4"'>
+                    LEFT JOIN nh_administrative_area AS c ON a.collect_task_town_id = c.administrative_code
+                    WHERE 1=1 AND a.collect_task_town_id = #{administrativeCode}
+                </if>
+                <if test='userLevel == "5"'>
+                    LEFT JOIN nh_administrative_area AS c ON a.collect_task_village_id = c.administrative_code
+                    WHERE 1=1 AND a.collect_task_village_id = #{administrativeCode}
+                </if>
+            </when>
+        </choose>
+
+
+        <if test="keywords != null and keywords != '' ">
+            AND b.plan_name LIKE CONCAT('%',#{keywords , jdbcType=VARCHAR},'%')
+        </if>
+
+        <choose>
+            <when test="planInfoIds != null">
+                AND a.collect_task_plan_id IN (
+                <foreach collection="planInfoIds" item="planIds" separator=",">
+                    #{planIds}
+                </foreach>
+                )
+            </when>
+            <otherwise>
+                <if test="planInfoId != null">
+                    AND a.collect_task_plan_id = #{planInfoId}
+                </if>
+            </otherwise>
+        </choose>
+
+
+        <choose>
+            <when test="orderField != null and orderDirection != null">
+                ORDER BY #{orderField}
+                <if test="orderDirection == 'desc'">
+                    DESC
+                </if>
+                <if test="orderDirection == 'asc'">
+                    ASC
+                </if>
+            </when>
+            <otherwise>
+                ORDER BY a.id DESC
+
+            </otherwise>
+        </choose>
+
+
+
+
+    </select>
+
+
+
+    <select id="listTaskPlanInfosByPlanId" parameterType="List" resultMap="rm">
+        SELECT
+        a.id,
+        t.id AS plan_id,
+        t.`plan_name` AS plan_name,
+        t.`plan_code`, t.`create_person`, t.`plan_end_time`, t.`plan_files`, t.`plan_require`,
+        t.`plan_start_time`, t.`plan_status`, t.`update_person`, t.`create_time`, t.`update_time`
+        FROM
+        nh_collect_task a
+        INNER JOIN nh_plan_info t ON a.collect_task_plan_id = t.id
+        WHERE 1=1
+
+
+        <if test="list != null">
+            AND t.id IN (
+            <foreach collection="list" item="id" separator=",">
+                #{id}
+            </foreach>
+            )
+        </if>
+                ORDER BY a.id DESC
+
+
+
+
+    </select>
+
+
+</mapper>

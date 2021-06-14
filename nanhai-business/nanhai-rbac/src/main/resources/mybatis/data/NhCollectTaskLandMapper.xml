@@ -1,0 +1,247 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.nanhai.modules.data.mapper.NhCollectTaskLandMapper">
+
+    <resultMap id="rm" type="com.nanhai.core.persistence.beans.NhCollectTaskLand">
+        <result property="id" jdbcType="BIGINT" column="id"/>
+        <result property="planId" jdbcType="BIGINT" column="plan_id"/>
+        <result property="landId" jdbcType="VARCHAR" column="land_id"/>
+        <result property="landType" jdbcType="INTEGER" column="land_type"/>
+        <result property="landProduct" jdbcType="INTEGER" column="land_product"/>
+        <result property="landProduce" jdbcType="VARCHAR" column="land_produce"/>
+        <result property="landOtherType" jdbcType="VARCHAR" column="land_other_type"/>
+        <result property="landProductArea" jdbcType="DOUBLE" column="land_product_area"/>
+        <result property="landYearValue" jdbcType="DOUBLE" column="land_year_value"/>
+        <result property="createPerson" jdbcType="VARCHAR" column="create_person"/>
+        <result property="updatePerson" jdbcType="VARCHAR" column="update_person"/>
+        <result property="auditPerson" jdbcType="VARCHAR" column="audit_person"/>
+        <result property="auditDate" jdbcType="TIMESTAMP" column="audit_date"/>
+        <result property="auditStatus" jdbcType="INTEGER" column="audit_status"/>
+        <result property="auditMemo" jdbcType="VARCHAR" column="audit_memo"/>
+        <result property="createTime" jdbcType="TIMESTAMP" column="create_time"/>
+        <result property="updateTime" jdbcType="TIMESTAMP" column="update_time"/>
+        <result property="collectStatus" jdbcType="INTEGER" column="collect_status"/>
+        <result property="planName" jdbcType="VARCHAR" column="plan_name"/>
+        <result property="landName" jdbcType="VARCHAR" column="land_name"/>
+        <result property="landTownCode" jdbcType="VARCHAR" column="land_town_code"/>
+        <result property="landVillageCode" jdbcType="VARCHAR" column="land_village_code"/>
+        <result property="landTownName" jdbcType="VARCHAR" column="land_town_name"/>
+        <result property="landVillageName" jdbcType="VARCHAR" column="land_village_name"/>
+        <result property="landVillageName" jdbcType="VARCHAR" column="land_village_name"/>
+        <result property="imgUrl" jdbcType="VARCHAR" column="img_url"/>
+        <result property="landTypeName" jdbcType="VARCHAR" column="type_name"/>
+        <result property="landYearOutput" jdbcType="DOUBLE" column="land_year_output"/>
+        <result property="landOutputUnit" jdbcType="VARCHAR" column="land_output_unit"/>
+        <result property="subjectNames" jdbcType="VARCHAR" column="subjectNames"/>
+        <result property="landProductName" jdbcType="VARCHAR" column="land_product_name"/>
+<!--        <result property="landTypeName" jdbcType="VARCHAR" column="land_type_name"/>-->
+        <!--<collection property="landInfo" column="land_id" javaType="ArrayList"
+                    ofType="com.nanhai.core.persistence.beans.NhLandInfo">
+            <result property="id" jdbcType="BIGINT" column="land_id"/>
+            <result property="landCode" jdbcType="VARCHAR" column="land_code"/>
+            <result property="landName" jdbcType="VARCHAR" column="land_name"/>
+            <result property="landTownCode" jdbcType="VARCHAR" column="land_town_code"/>
+            <result property="landVillageCode" jdbcType="VARCHAR" column="land_village_code"/>
+            <result property="landTownName" jdbcType="VARCHAR" column="land_town_name"/>
+            <result property="landVillageName" jdbcType="VARCHAR" column="land_village_name"/>
+        </collection>-->
+    </resultMap>
+
+
+    <select id="findPageBreakByCondition" parameterType="com.nanhai.core.business.vo.CollectTaskLandConditionVO"
+            resultMap="rm">
+        select c.id ,c.plan_id,c.land_id,c.land_type,c.land_product,c.land_produce,c.land_other_type,c.img_url
+
+        ,c.audit_memo,c.create_time,c.update_time,c.collect_status,
+        (select   GROUP_CONCAT("主体",s.subject_name,"(",lsss.ls_subject_use_area,"亩)") from
+        ( select ls.ls_land_code ,any_value(ls.ls_subject_use_area) as ls_subject_use_area ,any_value(ls.ls_subject_code ) as ls_subject_code
+        from nh_land_subject ls  ) as lsss
+        join  nh_subject_info s  on lsss.ls_subject_code=s.subject_code where lsss.ls_land_code=c.land_id) as subjectNames,
+        c.land_product_area,c.land_year_value,c.create_person,c.update_person,c.audit_person,c.audit_date,c.audit_status,
+        c.land_name,c.land_town_code,c.land_village_code,c.land_town_name ,c.land_village_name,c.land_year_output,c.land_output_unit,p.plan_name,
+        (select concat_ws('-',b.land_type_name,a.land_type_name)   from nh_land_type a,nh_land_type b
+        where  a.land_type_parent_code=b.land_type_code and a.land_type_level and a.land_type_code=c.land_type) as type_name,
+
+        (select concat_ws('-',a.product_type_name,b.product_type_name,c.product_type_name) from nh_product_type a,nh_product_type b ,nh_product_type c
+        where
+        b.product_type_parent_code=a.product_type_code and
+        c.product_type_parent_code=b.product_type_code and
+        c.product_type_level=3 and c.product_type_code=c.land_product) as land_product_name
+
+        from
+        nh_collect_task_land c
+        /* join nh_land_info l on l.land_code=c.land_id*/
+        left join nh_plan_info p on c.plan_id =p.id
+        left JOIN (select ls_land_code,any_value(ls_subject_code) as ls_subject_code from  nh_land_subject ls GROUP BY ls.ls_land_code) as lss ON c.land_id = lss.ls_land_code
+        where 1=1
+
+        <if test="landCodes!=null">
+            and c.land_id in
+            <foreach collection="landCodes" item="landCode" index="index" open="(" close=")" separator=",">
+                #{landCode}
+            </foreach>
+        </if>
+        <if test="landInfo!=null">
+            <if test="landInfo.landCode!=null and  ''!=landInfo.landCode">
+                and c.land_id=#{landInfo.landCode}
+            </if>
+            <if test="landInfo.landTownCode!=null and  ''!=landInfo.landTownCode">
+                and c.land_town_code=#{landInfo.landTownCode}
+            </if>
+            <if test="landInfo.landVillageCode!=null and  ''!=landInfo.landVillageCode">
+                and c.land_village_code=#{landInfo.landVillageCode}
+            </if>
+        </if>
+        <if test="collectTaskLand!=null">
+            <if test="collectTaskLand.planId!=null and ''!=collectTaskLand.planId ">
+                and c.plan_id=#{collectTaskLand.planId}
+            </if>
+            <if test="collectTaskLand.auditStatus!=null and ''!=collectTaskLand.auditStatus ">
+                and c.audit_status=#{collectTaskLand.auditStatus }
+            </if>
+        </if>
+        <if test="subjectName!=null and subjectName!=''">
+            and lss.ls_subject_code=#{subjectName}
+        </if>
+        <choose>
+            <when test="userLevel==4">
+                and c.land_town_code=#{administrativeCode}
+            </when>
+            <when test="userLevel==5">
+                and c.land_village_code=#{administrativeCode}
+            </when>
+        </choose>
+
+
+    </select>
+
+    <select id="">
+
+
+    </select>
+
+
+    <select id="getCollectPlanLandStatistics" resultType="com.nanhai.core.business.entity.CollectTaskLandRs"
+            parameterType="java.lang.Long">
+
+
+                 select  a.collectNum,b.noCollectNum,c.auditStatusNum from
+                (select count(*) as collectNum from nh_collect_task_land  where  collect_status=2  and plan_id=#{planId} ) a,
+                (select count(*) noCollectNum from nh_collect_task_land  where  collect_status=1 and plan_id=#{planId} ) b,
+                (select count(*) auditStatusNum from nh_collect_task_land  where  audit_status=2 and plan_id=#{planId} ) c
+         </select>
+
+
+
+
+
+    <select id="findPageBreakByUserList" parameterType="Long"
+            resultType="com.nanhai.core.business.entity.CollectTaskLandUser">
+        SELECT
+        u.user_name as userName,y.real_name as realName,b.administrative_name AS villageName,
+        c.administrative_name AS townName,
+        IFNULL(t.num,0) as collectNum,
+        IFNULL(r.num,0) as collectFailNum
+        FROM nh_collect_task AS a
+        LEFT JOIN nh_administrative_area AS b ON a.collect_task_village_id = b.administrative_code
+        LEFT JOIN nh_administrative_area AS c ON a.collect_task_town_id = c.administrative_code
+        LEFT JOIN nh_users AS u ON (u.user_administrative_code = a.collect_task_village_id OR
+        u.user_administrative_code = a.collect_task_town_id)
+        LEFT JOIN nh_sys_user AS y ON u.user_id = y.user_id
+
+        LEFT JOIN (SELECT count(1) AS num, land_village_name, land_town_name
+        FROM nh_collect_task_land
+        WHERE 1 = 1
+        AND collect_status = 2
+        <if test="planId != null">
+            AND plan_id = #{planId}
+        </if>
+        GROUP BY land_village_name, land_town_name)
+        AS t ON (t.land_village_name = b.administrative_name AND t.land_town_name = c.administrative_name)
+
+        LEFT JOIN (SELECT count(1) AS num, land_village_name, land_town_name
+        FROM nh_collect_task_land
+        WHERE 1 = 1
+        AND collect_status = 1
+        <if test="planId != null">
+            AND plan_id = #{planId}
+        </if>
+        GROUP BY land_village_name, land_town_name)
+        AS r ON (r.land_village_name = b.administrative_name AND r.land_town_name = c.administrative_name)
+
+        WHERE 1 = 1
+        <if test="planId != null">
+            AND a.collect_task_plan_id = #{planId}
+        </if>
+        AND u.user_name != ""
+
+        <if test="areaCode != null">
+            AND (b.administrative_code in (
+            <foreach collection="areaCode" item="code" separator=",">
+                #{code}
+            </foreach>
+            )
+            OR
+            b.administrative_high in (
+            <foreach collection="areaCode" item="code" separator=",">
+                #{code}
+            </foreach>
+            )
+            )
+        </if>
+
+        <if test="keywords != null and keywords != ''">
+            AND (u.user_name LIKE CONCAT('%',#{keywords , jdbcType=VARCHAR},'%')
+            OR
+            y.real_name LIKE CONCAT('%',#{keywords , jdbcType=VARCHAR},'%'))
+        </if>
+    </select>
+
+
+
+    <select id="getCollectPlanLandCondition" resultType="com.nanhai.core.business.entity.CollectTaskLandRs"
+            parameterType="com.nanhai.core.business.vo.CollectTaskLandConditionVO">
+        select
+
+        <if test="userLevel==4">
+            ANY_VALUE(c.land_town_name)
+            as areaName, c.land_town_code as areaCode,
+        </if>
+        <if test="userLevel==5">
+            ANY_VALUE(c.land_village_name)
+            as areaName, c.land_village_code as areaCode,
+        </if>
+
+        count(*)as count from nh_collect_task_land c
+        where 1=1
+
+        <if test="landTownCode!=null and landTownCode!=''">
+            and c.land_village_code  in(select administrative_code from nh_administrative_area where administrative_high= #{landTownCode})
+        </if>
+        <if  test="collectTaskLand!=null">
+            and c.plan_id=#{collectTaskLand.planId}
+            <if test="collectTaskLand.collectStatus!=null and collectTaskLand.collectStatus!=0">
+                and c.collect_status=#{collectTaskLand.collectStatus}
+            </if>
+            <if test="collectTaskLand.auditStatus!=null and collectTaskLand.auditStatus!=0">
+                and c.audit_status=#{collectTaskLand.auditStatus}
+            </if>
+        </if>
+        <choose>
+            <when test="userLevel==4">
+                GROUP BY c.land_town_code
+            </when>
+            <when test="userLevel==5">
+                GROUP BY c.land_village_code
+            </when>
+        </choose>
+
+    </select>
+
+    <select id="selectLandType" parameterType="java.lang.String" resultType="String">
+    select b.land_type_name,a.land_type_name from nh_land_type a,nh_land_type b
+    where  a.land_type_parent_code=b.land_type_code and a.land_type_level and a.land_type_code=#{land_type_code}
+    </select>
+
+</mapper>

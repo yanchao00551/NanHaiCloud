@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.nanhai.modules.data.mapper.NhLandSubjectMapper">
+
+    <!--<resultMap id="rm" type="com.nanhai.core.persistence.beans.NhSubjectInfo">
+        <result property="id" jdbcType="BIGINT" column="id"/>
+        <result property="subjectCode" jdbcType="VARCHAR" column="subject_code"/>
+        <result property="subjectName" jdbcType="VARCHAR" column="subject_name"/>
+        <result property="subjectLinkman" jdbcType="VARCHAR" column="subject_linkman"/>
+        <result property="subjectTele" jdbcType="VARCHAR" column="subject_tele"/>
+        <result property="subjectCard" jdbcType="VARCHAR" column="subject_card"/>
+        <result property="subjectTownId" jdbcType="VARCHAR" column="subject_town_id"/>
+        <result property="subjectVillageId" jdbcType="VARCHAR" column="subject_village_id"/>
+        <result property="subjectAddr" jdbcType="VARCHAR" column="subject_addr"/>
+        <result property="subjectBusiType" jdbcType="VARCHAR" column="subject_busi_type"/>
+        <result property="subjectPlanId" jdbcType="BIGINT" column="subject_plan_id"/>
+        <result property="subjectMainProduct" jdbcType="VARCHAR" column="subject_main_product"/>
+        <result property="subjectOtherProduct" jdbcType="VARCHAR" column="subject_other_product"/>
+        <result property="subjectType" jdbcType="INTEGER" column="subject_type"/>
+        <result property="subjectIndustry" jdbcType="INTEGER" column="subject_industry"/>
+        <result property="subjectPersonNum" jdbcType="INTEGER" column="subject_person_num"/>
+        <result property="subjectYearTotalValue" jdbcType="DOUBLE" column="subject_year_total_value"/>
+        <result property="subjectOrgCode" jdbcType="VARCHAR" column="subject_org_code"/>
+        <result property="subjectUscCode" jdbcType="VARCHAR" column="subject_usc_code"/>
+        <result property="subjectIntro" jdbcType="VARCHAR" column="subject_intro"/>
+        <result property="createTime" jdbcType="TIMESTAMP" column="create_date"/>
+        <result property="updateTime" jdbcType="TIMESTAMP" column="create_date"/>
+        <result property="createPerson" jdbcType="VARCHAR" column="create_person"/>
+        <result property="auditStatus" jdbcType="INTEGER" column="audit_status"/>
+        <result property="auditPerson" jdbcType="VARCHAR" column="audit_person"/>
+        <result property="auditDate" jdbcType="TIMESTAMP" column="audit_date"/>
+        <result property="imgUrl" jdbcType="VARCHAR" column="img_url"/>
+
+    </resultMap>-->
+    <resultMap id="rm" type="com.nanhai.core.persistence.beans.NhLandSubject">
+        <result property="id" jdbcType="BIGINT" column="id"/>
+        <result property="lsPlanId" jdbcType="BIGINT" column="ls_plan_id"/>
+        <result property="lsLandCode" jdbcType="VARCHAR" column="ls_land_code"/>
+        <result property="lsSubjectCode" jdbcType="VARCHAR" column="ls_subject_code"/>
+        <result property="lsSubjectUseArea" jdbcType="DOUBLE" column="ls_subject_use_area"/>
+        <result property="lsYearValue" jdbcType="DOUBLE" column="ls_year_value"/>
+        <result property="auditStatus" jdbcType="BIGINT" column="audit_status"/>
+        <result property="createTime" jdbcType="TIMESTAMP" column="create_time"/>
+        <result property="updateTime" jdbcType="TIMESTAMP" column="update_time"/>
+    </resultMap>
+
+
+ <!--<select id="findPageBreakByCondition" resultMap="rm">
+     select a.id,a.subject_code, a.subject_name,a.subject_type,a.subject_industry,a.subject_linkman,a.subject_addr,a.subject_town_id,a.subject_village_id,a.subject_tele FROM nh_subject_info a
+      where 1=1
+       GROUP  BY a.id desc
+ </select>-->
+
+
+
+    <select id="selectLandSubjectByLandCode" parameterType="com.nanhai.core.business.vo.LandSubjectConditionVO" resultMap="rm">
+select *
+from nh_land_subject
+where ls_land_code = #{landCode}
+    </select>
+     <update id="updateLandSubjectByLandCode" parameterType="com.nanhai.core.business.vo.LandSubjectConditionVO" >
+update nh_land_subject
+set audit_status = #{auditStatus}
+where ls_land_code = #{lsLandCode}
+    </update>
+
+</mapper>
+    <!--<select id="selectSubjectIdByLandId" parameterType="com.nanhai.core.business.vo.SubjectAuditInfoConditionVO" resultMap="rm">
+select * from nh_subject_info where subject_code =
+(select ls_subject_code from nh_land_subject where ls_land_code = #{landCode} )
+    </select>-->
+<!--<select id="selectLandSubjectByLandCode" parameterType="com.nanhai.core.business.vo.LandSubjectConditionVO" resultMap="rm">
+select * from nh_subject_info where subject_code =
+(select ls_subject_code from nh_land_subject where ls_land_code = #{landCode} )
+    </select>-->

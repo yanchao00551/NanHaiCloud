@@ -3,6 +3,11 @@
 
 # Log file
 *.log
+.idea/*
+.idea/
+/.idea/
+
+nanhai-business/nanhai-swagger2/
 
 # BlueJ files
 *.ctxt
@@ -21,3 +26,42 @@
 
 # virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
 hs_err_pid*
+nanhai-business/member-center/src/test/
+nanhai-business/nahai-common/src/test/
+nanhai-business/nanhai-app/maven-repository/
+nanhai-business/nanhai-app/src/test/
+nanhai-business/nanhai-baseinfo/src/test/
+nanhai-business/nanhai-core/src/main/java/com/nanhai/core/business/dto/
+nanhai-business/nanhai-core/src/main/java/com/nanhai/core/framework/exception/
+nanhai-business/nanhai-core/src/main/resources/
+nanhai-business/nanhai-core/src/test/
+nanhai-business/nanhai-data/src/test/
+nanhai-business/nanhai-rbac/src/test/
+nanhai-business/nanhai-swagger2/src/main/java/com/power/modules/
+nanhai-business/nanhai-swagger2/src/main/resources/mapper/goods/
+nanhai-business/nanhai-swagger2/src/test/
+nanhai-business/nanhai-task/src/test/
+nanhai-business/user-center/src/test/
+nanhai-config-server/src/test/
+nanhai-eureka-server/src/test/
+nanhai-security-oauth/src/test/
+nanhai-zuul-gateway/src/test/
+nanhai-core/target/maven-status/maven-compiler-plugin/compile/default-compile/createdFiles.lst
+nanhai-core/target/maven-status/maven-compiler-plugin/compile/default-compile/inputFiles.lst
+nanhai-core/target/maven-status/maven-compiler-plugin/testCompile/default-testCompile/createdFiles.lst
+nanhai-core/target/maven-status/maven-compiler-plugin/testCompile/default-testCompile/inputFiles.lst
+.idea/compiler.xml
+.idea/encodings.xml
+.idea/misc.xml
+.idea/modules.xml
+.idea/workspace.xml
+nanhai-business/nanhai-baseinfo/src/main/resources/bootstrap.yml
+nanhai-business/nanhai-rbac/src/main/resources/bootstrap.yml
+nanhai-business/nanhai-task/src/main/resources/application.yml
+nanhai-core/target/maven-archiver/pom.properties
+nanhai-business/oss-file/src/main/resources/bootstrap.yml
+nanhai.sql
+.idea/workspace.xml
+.idea/workspace.xml
+.idea/workspace.xml
+.idea/workspace.xml

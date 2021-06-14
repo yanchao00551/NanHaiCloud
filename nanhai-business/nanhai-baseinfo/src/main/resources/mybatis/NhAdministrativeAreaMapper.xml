@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.nanhai.mapper.NhAdministrativeAreaMapper">
+
+    <resultMap id="rm" type="com.nanhai.core.persistence.beans.NhAdministrativeArea">
+        <result property="id" jdbcType="BIGINT" column="id"/>
+        <result property="administrativeCode" jdbcType="VARCHAR" column="administrative_code"/>
+        <result property="administrativeHigh" jdbcType="VARCHAR" column="administrative_high"/>
+        <result property="administrativeLevel" jdbcType="BIGINT" column="administrative_level"/>
+        <result property="administrativeName" jdbcType="VARCHAR" column="administrative_name"/>
+        <result property="administrativeLat" jdbcType="VARCHAR" column="administrative_lat"/>
+        <result property="administrativeLon" jdbcType="VARCHAR" column="administrative_lon"/>
+        <result property="administrativePcode" jdbcType="VARCHAR" column="administrative_pcode"/>
+
+        <result property="createTime" jdbcType="TIMESTAMP" column="create_time"/>
+        <result property="updateTime" jdbcType="TIMESTAMP" column="update_time"/>
+    </resultMap>
+
+    <select id="findByCondition" parameterType="com.nanhai.core.business.vo.AdministrativeAreaConditionVO"
+            resultMap="rm">
+        SELECT a.id,
+               a.administrative_code,
+               a.administrative_high,
+               a.administrative_level,
+               a.administrative_name,
+               a.administrative_lat,
+               a.administrative_lon,
+               a.administrative_pcode,
+               a.create_time,
+               a.update_time
+        FROM nh_administrative_area AS a
+        WHERE 1 = 1
+        GROUP BY a.id
+    </select>
+
+    <select id="selectAllSelect" parameterType="List"
+            resultMap="rm">
+        SELECT a.id,
+               a.administrative_code,
+               a.administrative_high,
+               a.administrative_level,
+               a.administrative_name,
+               a.administrative_lat,
+               a.administrative_lon,
+               a.administrative_pcode,
+               a.create_time,
+               a.update_time
+        FROM nh_administrative_area AS a
+        WHERE 1 = 1
+            AND (a.administrative_code IN (
+            <foreach collection="townIds" item="idt" separator=",">
+                #{idt}
+            </foreach>
+            )
+            OR
+            a.administrative_code IN (
+            <foreach collection="villageIds" item="idv" separator=",">
+                #{idv}
+            </foreach>
+            )
+            )
+        GROUP BY a.id
+    </select>
+
+
+</mapper>

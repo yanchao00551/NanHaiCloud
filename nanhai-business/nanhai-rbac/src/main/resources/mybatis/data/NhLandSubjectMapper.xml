@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.nanhai.modules.data.mapper.NhLandSubjectMapper">
+
+
+
+    <!--any_value(ls.id) as landSubjectId,  any_value(s.subject_name) as subjectName,
+     select   ls.id landSubjectId, s.subject_name subjectName, s.`subject_base` subjectBase,
+        ls.ls_year_value isYearValue, ls.ls_subject_use_area lsSubjectUseArea,
+         ls.ls_subject_code  subjectCode,l.land_type landType,sum(ls.ls_subject_use_area)  'sumArea',count(*)  'count'
+        from nh_land_subject ls join nh_land_info l on ls.ls_land_code=l.land_code join nh_subject_info s on ls.ls_subject_code=s.subject_code
+          GROUP BY ls.ls_subject_code,l.land_type
+    -->
+    <select id="findLandSubject1" parameterType="java.lang.String" resultType="com.nanhai.core.business.entity.LandSubjectRs">
+        SELECT  a.id landSubjectId, b.subject_name subjectName,a.ls_year_value lsYearValue,
+        a.ls_subject_use_area lsSubjectUseArea, b.`subject_base` subjectBase,
+        a.ls_subject_code subjectCode,l.land_type
+        FROM  nh_land_subject a,nh_subject_info b,nh_land_info l
+        WHERE a.ls_subject_code=b.subject_code and
+        l.land_code=a.ls_land_code
+          and  1=1
+        <if test="lsSubjectCode!=null and  lsSubjectCode!=''">
+           and  a.ls_subject_code=#{lsSubjectCode}
+        </if>
+        <if test="lsLandCode!=null and  lsLandCode!=''">
+            and   a.ls_land_code=#{lsLandCode}
+        </if>
+
+    </select>
+
+</mapper>

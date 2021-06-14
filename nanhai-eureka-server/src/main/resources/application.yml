@@ -1,0 +1,35 @@
+spring:
+  application:
+    name:nanhai-eureka-server
+  security:
+    user:
+      name: user
+      password: 123
+
+# 指定该Eureka实例的端口
+server:
+  port: 8260
+
+# Eureka相应的配置
+# 指定该Eureka实例的主机名
+eureka:
+  instance:
+    hostname: localhost
+    prefer-ip-address: true
+    ip-address: 127.0.0.1
+  server:
+    wait-time-in-ms-when-sync-empty: 5
+  client:
+    # 通过eureka.client.registerWithEureka:false和fetchRegistry:false，来表明自己是一个eureka server
+    #是否将自己注册到Eureka Server，由于当前应用为Eureka Service，故为false
+    register-with-eureka: false
+    #是否从Eureka Server获取注册信息，由于是单点，所以为false
+    fetch-registry: false
+    #与Eureka Server交互的地址
+    service-url:
+      defaultZone: http://user:123@${eureka.instance.hostname}:${server.port}/eureka
+#日志访问级别
+logging:
+  level:
+    org:
+      springframework: INFO

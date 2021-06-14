@@ -1,0 +1,82 @@
+server:
+  port: 8280
+
+
+
+
+spring:
+  servlet:
+    multipart:
+      max-file-size: 5MB
+      max-request-size: 10MB
+  application:
+    name: nanhai-zuul-gateway
+  cloud:
+    config:
+      profile: dev
+      uri: http://nanhai-config-server
+
+ipAddress: 127.0.0.1
+
+#service discovery url
+eureka:
+  instance:
+    hostname: localhost
+    prefer-ip-address: true
+    ip-address: ${ipAddress}
+  client:
+    register-with-eureka: true
+    fetch-registry: true 
+    service-url:
+      defaultZone: http://user:123@${ipAddress}:8260/eureka
+
+
+
+zuul:
+  sensitive-headers: Cookie,Set-Cookie
+  host:
+    connect-timeout-millis: 1500000
+    socket-timeout-millis: 6000000
+  routes:
+    uaa:
+      path: /uaa/**
+      sensitiveHeaders:
+      serviceId: nanhai-security-oauth
+
+    nanhai-task:
+      path: /task/**
+      sensitiveHeaders:
+      serviceId: nanhai-task
+    oss-file:
+      path: /oss/**
+      sensitiveHeaders:
+      serviceId: oss-file
+    nanhai-rbac:
+      path: /rbac/**
+      sensitiveHeaders:
+      serviceId: nanhai-rbac
+    nanhai-data:
+      path: /data/**
+      sensitiveHeaders:
+      serviceId: nanhai-data
+    nanhai-baseinfo:
+      path: /baseinfo/**
+      sensitiveHeaders:
+      serviceId: nanhai-baseinfo
+
+  add-proxy-headers: true
+
+oauth-server: http://${ipAddress}:2300
+
+security:
+  oauth2:
+    client:
+      access-token-uri: ${oauth-server}/oauth/token
+      user-authorization-uri: ${oauth-server}/oauth/authorize
+    resource:
+      prefer-token-info: false
+      user-info-uri: ${oauth-server}/uaa/user/info
+
+ribbon:        #设置ribbon的超时时间小于zuul的超时时间
+  ReadTimeout: 100000000
+  ConnectTimeout: 100000000

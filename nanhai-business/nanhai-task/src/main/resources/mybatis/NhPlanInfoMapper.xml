@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.nanhai.mapper.NhPlanInfoMapper">
+
+    <resultMap id="rm" type="com.nanhai.core.persistence.beans.NhPlanInfo">
+        <result property="id" jdbcType="BIGINT" column="id"/>
+        <result property="planCode" jdbcType="VARCHAR" column="plan_code"/>
+        <result property="createPerson" jdbcType="VARCHAR" column="create_person"/>
+        <result property="planEndTime" jdbcType="TIMESTAMP" column="plan_end_time"/>
+        <result property="planFiles" jdbcType="VARCHAR" column="plan_files"/>
+        <result property="planName" jdbcType="VARCHAR" column="plan_name"/>
+        <result property="planRequire" jdbcType="BIT" column="plan_require"/>
+        <result property="planStartTime" jdbcType="TIMESTAMP" column="plan_start_time"/>
+        <result property="planStatus" jdbcType="BIGINT" column="plan_status"/>
+        <result property="updatePerson" jdbcType="BIGINT" column="update_person"/>
+        <result property="createTime" jdbcType="TIMESTAMP" column="create_time"/>
+        <result property="updateTime" jdbcType="TIMESTAMP" column="update_time"/>
+
+        <collection property="collectTasks" column="task_id" javaType="ArrayList"
+                    ofType="com.nanhai.core.persistence.beans.NhCollectTask">
+            <result property="id" jdbcType="BIGINT" column="task_id"/>
+            <result property="collectTaskPlanId" jdbcType="BIGINT" column="collect_task_plan_id"/>
+            <result property="collectTaskTownId" jdbcType="VARCHAR" column="collect_task_town_id"/>
+            <result property="collectTaskVillageId" jdbcType="VARCHAR" column="collect_task_village_id"/>
+            <result property="createTime" jdbcType="TIMESTAMP" column="t_create_time"/>
+            <result property="updateTime" jdbcType="TIMESTAMP" column="t_update_time"/>
+        </collection>
+
+    </resultMap>
+
+    <select id="findPageBreakByCondition" parameterType="com.nanhai.core.business.vo.PlanInfoConditionVO"
+            resultMap="rm">
+        SELECT a.`id`, a.`plan_code`, a.`create_person`, a.`plan_end_time`, a.`plan_files`, a.`plan_name`,
+        a.`plan_require`,
+        a.`plan_start_time`, a.`plan_status`, a.`update_person`, a.`create_time`, a.`update_time`
+        FROM nh_plan_info AS a
+        WHERE 1=1
+
+        <if test="keywords != null and keywords != '' ">
+            AND a.plan_name LIKE CONCAT('%',#{keywords , jdbcType=VARCHAR},'%')
+        </if>
+
+        <choose>
+            <when test="planInfoIds != null">
+                AND a.id IN (
+                <foreach collection="planInfoIds" item="planIds" separator=",">
+                    #{planIds}
+                </foreach>
+                )
+            </when>
+            <otherwise>
+                <if test="planInfo != null and planInfo.id != null">
+                    AND a.id = #{planInfo.id}
+                </if>
+            </otherwise>
+        </choose>
+        ORDER BY a.id DESC
+    </select>
+
+    <select id="findPlanAccordingToTheTask" parameterType="com.nanhai.core.business.vo.PlanInfoConditionVO"
+            resultMap="rm">
+        SELECT a.`id`, a.`plan_code`, a.`create_person`, a.`plan_end_time`, a.`plan_files`, a.`plan_name`,
+        a.`plan_require`,
+        a.`plan_start_time`, a.`plan_status`, a.`update_person`, a.`create_time`, a.`update_time`
+        FROM nh_plan_info AS a
+        WHERE 1=1
+
+        <if test="keywords != null and keywords != '' ">
+            AND a.plan_name LIKE CONCAT('%',#{keywords , jdbcType=VARCHAR},'%')
+        </if>
+        <if test="status != null">
+            AND a.plan_status = #{status}
+        </if>
+        <choose>
+            <when test="planInfoIds != null">
+                AND a.id IN (
+                <foreach collection="planInfoIds" item="planIds" separator=",">
+                    #{planIds}
+                </foreach>
+                )
+            </when>
+            <otherwise>
+
+            </otherwise>
+        </choose>
+
+
+        ORDER BY a.id DESC
+
+
+    </select>
+
+    <select id="listPlanInfosTaskByPlanId" parameterType="com.nanhai.core.business.vo.PlanInfoConditionVO"
+            resultMap="rm">
+        SELECT
+        a.`id`, a.`plan_code`, a.`create_person`, a.`plan_end_time`, a.`plan_files`, a.`plan_name`, a.`plan_require`,
+        a.`plan_start_time`, a.`plan_status`, a.`update_person`, a.`create_time`, a.`update_time`,
+
+        t.`id` AS task_id,
+        t.collect_task_plan_id,t.collect_task_town_id,t.collect_task_village_id,
+        t.`create_time` as t_create_time,t.`update_time` as t_update_time
+        FROM
+        nh_plan_info a
+        INNER JOIN nh_collect_task AS t ON a.id = t.collect_task_plan_id
+        WHERE 1=1
+
+
+
+
+
+        <if test="list != null">
+            AND a.id IN (
+            <foreach collection="list" item="id" separator=",">
+                #{id}
+            </foreach>
+            )
+        </if>
+
+
+        ORDER BY a.id DESC
+
+    </select>
+
+
+
+
+
+
+
+
+
+    <select id="queryMyPlan" parameterType="com.nanhai.core.business.vo.PlanInfoConditionVO"
+            resultMap="rm">
+        select a.`id`, a.`plan_code`, a.`create_person`, a.`plan_end_time`, a.`plan_files`, a.`plan_name`,
+        a.`plan_require`,
+        a.`plan_start_time`, a.`plan_status`, a.`update_person`, a.`create_time`, a.`update_time` from nh_plan_info
+        a, (select c.collect_task_plan_id as id  from nh_collect_task as c
+        <choose>
+        <when test="userLevel != null">
+            <if test='userLevel == "3"'>
+            </if>
+            <if test='userLevel == "4"'>
+
+                WHERE 1=1 AND  c.collect_task_town_id = #{administrativeCode}
+            </if>
+            <if test='userLevel == "5"'>
+                WHERE 1=1 AND  c.collect_task_village_id = #{administrativeCode}
+            </if>
+        </when>
+        </choose>
+        group by c.collect_task_plan_id ) as t
+        where a.id = t.id
+        <if test="keywords != null and keywords != '' ">
+            AND a.plan_name LIKE CONCAT('%',#{keywords , jdbcType=VARCHAR},'%')
+        </if>
+        <if test="isExpire==1">
+            and a.plan_end_time  &lt;#{time}
+        </if>
+        ORDER BY a.plan_end_time
+    </select>
+
+</mapper>

@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.nanhai.mapper.NhPropertyValueMapper">
+
+    <resultMap id="rm" type="com.nanhai.core.persistence.beans.NhPropertyValue">
+        <result property="pvCode" jdbcType="VARCHAR" column="pv_code"/>
+        <result property="ptCode" jdbcType="VARCHAR" column="pt_code"/>
+        <result property="propertyValue" jdbcType="VARCHAR" column="property_value"/>
+        <result property="propertyValueMemo" jdbcType="BIGINT" column="property_value_memo"/>
+
+        <result property="createTime" jdbcType="TIMESTAMP" column="create_time"/>
+        <result property="updateTime" jdbcType="TIMESTAMP" column="update_time"/>
+    </resultMap>
+
+
+    <select id="selectPage" resultMap="rm" parameterType="com.nanhai.core.persistence.beans.NhPropertyValue">
+        SELECT a.*,b.`property_type_name` propertyTypeName FROM nh_property_value a, nh_property_type b
+          WHERE a.`pt_code`=b.`pt_code` AND a.pt_code= #{ptCode}
+            ORDER BY pt_code,pv_code
+    </select>
+
+</mapper>

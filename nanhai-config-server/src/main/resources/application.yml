@@ -1,0 +1,30 @@
+server:
+  port: 8888
+
+# 设置服务器名称为ebay-config-server
+spring:
+  application:
+    name: nanhai-config-server
+
+  cloud:
+    config:
+      server:
+        git:
+          uri: https://gitee.com/lyndn/NanHaiCloud.git   # 设置仓库地址
+          username: lyndn
+          password: program
+          searchPaths: nanhai-config-repo
+
+ipAddress: 127.0.0.1
+
+#service discovery url
+eureka:
+  instance:
+    hostname: localhost
+    prefer-ip-address: true
+    ip-address: ${ipAddress}
+  client:
+    register-with-eureka: true
+    fetch-registry: false
+    service-url:
+      defaultZone: http://user:123@${ipAddress}:8260/eureka

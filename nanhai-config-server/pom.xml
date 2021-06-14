@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>com.nanhai</groupId>
+        <artifactId>nanhai-parent</artifactId>
+        <version>0.0.1-SNAPSHOT</version>
+        <relativePath>../nanhai-parent</relativePath>
+    </parent>
+
+    <artifactId>nanhai-config-server</artifactId>
+    <name>nanhai-config-server</name>
+    <description>config server</description>
+    <packaging>jar</packaging>
+
+
+    <properties>
+        <java.version>1.8</java.version>
+    </properties>
+
+    <dependencies>
+
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-config-server</artifactId>
+        </dependency>
+
+        <!-- 配置服务器整合eureka,实现config客户端使用config.uri直接使用服务名称 -->
+        <!-- springboot2.x  Eureka客户端 -->
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
+        </dependency>
+
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+            </plugin>
+
+            <!-- Docker构建工具 -->
+            <plugin>
+                <groupId>com.spotify</groupId>
+                <artifactId>dockerfile-maven-plugin</artifactId>
+                <version>1.4.10</version>
+                <!-- 放开这块注释，则运行mvn deploy命令就会打包镜像 -->
+                <executions>
+                    <execution>
+                        <id>default</id>
+                        <!-- 如果package时不想用docker打包,就注释掉这个goal -->
+                        <goals>
+                            <!--<goal>build</goal>-->
+                            <!--<goal>push</goal>-->
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <dockerfile>Dockerfile</dockerfile>
+                    <repository>119.28.8.158:5000/nanhai/${project.artifactId}</repository>
+                    <!-- <tag>${project.version}</tag> 不指定tag默认为latest -->
+                    <buildArgs>
+                        <JAR_FILE>target/${project.build.finalName}.jar</JAR_FILE>
+                    </buildArgs>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
+</project>

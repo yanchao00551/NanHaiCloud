@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.nanhai.modules.data.mapper.NhLandInfoMapper">
+
+    <resultMap id="rm" type="com.nanhai.core.persistence.beans.NhLandInfo">
+        <result property="id" jdbcType="BIGINT" column="id"/>
+        <result property="landPlanId" jdbcType="BIGINT" column="land_plan_id"/>
+        <result property="landPlanName" jdbcType="BIGINT" column="land_plan_Name"/>
+        <result property="landArea" jdbcType="DOUBLE" column="land_area"/>
+        <result property="landCode" jdbcType="VARCHAR" column="land_code"/>
+        <result property="landMemo" jdbcType="VARCHAR" column="land_memo"/>
+        <result property="landType" jdbcType="INTEGER" column="land_type"/>
+        <result property="landTypeName" jdbcType="VARCHAR" column="land_type_name"/>
+        <result property="landName" jdbcType="VARCHAR" column="land_name"/>
+        <result property="landOtherType" jdbcType="VARCHAR" column="land_other_type"/>
+        <result property="landOutputUnit" jdbcType="VARCHAR" column="land_output_unit"/>
+        <result property="landProduct" jdbcType="INTEGER" column="land_product"/>
+        <result property="landTownCode" jdbcType="VARCHAR" column="land_town_code"/>
+        <result property="landVillageCode" jdbcType="VARCHAR" column="land_village_code"/>
+        <result property="landYearOutput" jdbcType="DOUBLE" column="land_year_output"/>
+        <result property="createPerson" jdbcType="VARCHAR" column="create_person"/>
+        <result property="updatePerson" jdbcType="VARCHAR" column="update_person"/>
+        <result property="auditPerson" jdbcType="VARCHAR" column="audit_person"/>
+        <result property="auditStatus" jdbcType="INTEGER" column="audit_status"/>
+        <result property="auditDate" jdbcType="TIMESTAMP" column="audit_date"/>
+        <result property="auditMemo" jdbcType="VARCHAR" column="audit_memo"/>
+        <result property="createTime" jdbcType="TIMESTAMP" column="create_time"/>
+        <result property="updateTime" jdbcType="TIMESTAMP" column="update_time"/>
+        <result property="landTownName" jdbcType="VARCHAR" column="land_town_name"/>
+        <result property="landVillageName" jdbcType="VARCHAR" column="land_village_name"/>
+        <result property="updateTime" jdbcType="TIMESTAMP" column="update_time"/>
+        <result property="imgUrl" jdbcType="VARCHAR" column="img_url"/>
+        <result property="subjectNames" jdbcType="VARCHAR" column="subjectNames"/>
+        <result property="landProduce" jdbcType="VARCHAR" column="land_produce"/>
+        <result property="levelOneType" jdbcType="VARCHAR" column="level_one_type"/>
+        <result property="levelTwoType" jdbcType="VARCHAR" column="level_two_type"/>
+        <result property="landYearValue" jdbcType="DOUBLE" column="land_year_value"/>
+        <result property="mu" jdbcType="VARCHAR" column="mu"/>
+    </resultMap>
+
+
+    <select id="findPageBreakByCondition" parameterType="com.nanhai.core.business.vo.LandSubjectConditionVO"
+            resultMap="rm">
+        select
+        a.id,a.land_plan_id,a.land_year_output,a.land_output_unit,a.land_produce,a.level_one_type,a.level_two_type,a.land_town_name,
+        a.land_village_name,a.mu,a.land_year_value,
+        (select b.plan_name from nh_plan_info as b where b.id=a.land_plan_id) as land_plan_name,
+        a.land_area,a.land_code,a.land_type ,a.land_name,a.land_product, a.land_town_code ,
+        a.land_village_code,a.create_person,a.update_person,a.img_url,
+        a.create_time,a.update_time,a.audit_status,a.land_other_type,a.audit_date,a.audit_person,
+        GROUP_CONCAT("主体",s.subject_name,"(",ls.ls_subject_use_area,"亩)") as subjectNames
+        FROM nh_land_info a
+        left join nh_land_subject ls on a.land_code=ls.ls_land_code
+        left join nh_subject_info s on ls.ls_subject_code= s.subject_code
+        where 1=1
+        <if test="landSubject!=null">
+            <if test=" landSubject.lsSubjectCode!=null and  ''!=landSubject.lsSubjectCode">
+                and ls.ls_subject_code=#{landSubject.lsSubjectCode}
+            </if>
+
+            <if test="landSubject.lsLandCode!=null and  ''!=landSubject.lsLandCode">
+                and ls.ls_land_code=#{landSubject.lsLandCode}
+            </if>
+        </if>
+        <if test="landInfo!=null">
+            <if test="landInfo.landCode!=null and  ''!=landInfo.landCode">
+                and a.land_code=#{landInfo.landCode}
+            </if>
+            <if test="landInfo.landName!=null and  ''!=landInfo.landName">
+                and a.land_name like CONCAT('%',#{landInfo.landName, jdbcType=VARCHAR},'%')
+            </if>
+            <if test="landInfo.landTownCode!=null and  ''!=landInfo.landTownCode">
+                and a.land_town_code=#{landInfo.landTownCode}
+            </if>
+            <if test=" landInfo.landVillageCode!=null and  ''!=landInfo.landVillageCode">
+                and a.land_village_code=#{landInfo.landVillageCode}
+            </if>
+            <if test="landInfo.landProduct!=null and  ''!=landInfo.landProduct">
+                and a.land_product=#{landInfo.landProduct}
+            </if>
+            <if test="landInfo.auditStatus!=null and landInfo.auditStatus!=-1">
+                and a.audit_status=#{landInfo.auditStatus}
+            </if>
+            <if test="landInfo.landPlanId!=null and  landInfo.landPlanId!=0">
+                and a.land_plan_id=#{landInfo.landPlanId}
+            </if>
+
+        </if>
+        <if test="landCodes!=null">
+            and a.land_code in
+            <foreach collection="landCodes" item="landCode" index="index" open="(" close=")" separator=",">
+                #{landCode}
+            </foreach>
+        </if>
+
+        <if test="subjectName!=null and  ''!=subjectName">
+            and s.subject_name like CONCAT('%',#{subjectName, jdbcType=VARCHAR},'%')
+        </if>
+
+
+        <choose>
+
+            <when test="userLevel==4">
+                and a.land_town_code=#{administrativeCode}
+            </when>
+            <when test="userLevel==5">
+                and a.land_village_code=#{administrativeCode}
+            </when>
+        </choose>
+
+        GROUP BY a.id
+        ORDER BY a.id desc
+    </select>
+
+
+    <select id="landTypeStatistics" resultType="com.nanhai.core.business.entity.Statistics" parameterType="com.nanhai.core.business.vo.StatisticsConditionVO" >
+
+     select  ANY_VALUE(level_two_type) as landTypeName ,count(a.land_type) as `landCount` ,
+     SUM(a.mu) as mu ,sum(a.land_year_value) as landYearValue
+         from nh_land_info a
+         where 1=1
+        <choose>
+            <when test="userLevel==3">
+                <if test="townCode!=null and townCode!=''">
+                    and a.land_town_code=#{townCode}
+                </if>
+            </when>
+            <when test="userLevel==4">
+                and a.land_town_code=#{administrativeCode}
+                <if test="villageCode!=null and villageCode!=''">
+                    and a.land_village_code=#{villageCode}
+                </if>
+            </when>
+            <when test="userLevel==5">
+                and a.land_village_code=#{administrativeCode}
+            </when>
+        </choose>
+        GROUP BY  a.land_type
+
+    </select>
+
+</mapper>

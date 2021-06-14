@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.nanhai.modules.data.mapper.NhSubjectInfoMapper">
+
+    <resultMap id="rm" type="com.nanhai.core.persistence.beans.NhSubjectInfo">
+        <result property="id" jdbcType="BIGINT" column="id"/>
+        <result property="subjectCode" jdbcType="VARCHAR" column="subject_code"/>
+        <result property="subjectName" jdbcType="VARCHAR" column="subject_name"/>
+        <result property="subjectLinkman" jdbcType="VARCHAR" column="subject_linkman"/>
+        <result property="subjectTele" jdbcType="VARCHAR" column="subject_tele"/>
+        <result property="subjectBase" jdbcType="VARCHAR" column="subject_base"/>
+        <result property="subjectCard" jdbcType="VARCHAR" column="subject_card"/>
+        <result property="subjectTownId" jdbcType="VARCHAR" column="subject_town_id"/>
+        <result property="subjectVillageId" jdbcType="VARCHAR" column="subject_village_id"/>
+        <result property="subjectAddr" jdbcType="VARCHAR" column="subject_addr"/>
+        <result property="subjectBusiType" jdbcType="VARCHAR" column="subject_busi_type"/>
+        <result property="subjectPlanId" jdbcType="BIGINT" column="subject_plan_id"/>
+        <result property="subjectMainProduct" jdbcType="VARCHAR" column="subject_main_product"/>
+        <result property="subjectOtherProduct" jdbcType="VARCHAR" column="subject_other_product"/>
+        <result property="subjectType" jdbcType="INTEGER" column="subject_type"/>
+        <result property="subjectIndustry" jdbcType="INTEGER" column="subject_industry"/>
+        <result property="subjectPersonNum" jdbcType="INTEGER" column="subject_person_num"/>
+        <result property="subjectYearTotalValue" jdbcType="DOUBLE" column="subject_year_total_value"/>
+        <result property="subjectOrgCode" jdbcType="VARCHAR" column="subject_org_code"/>
+        <result property="subjectUscCode" jdbcType="VARCHAR" column="subject_usc_code"/>
+        <result property="subjectIntro" jdbcType="VARCHAR" column="subject_intro"/>
+        <result property="createTime" jdbcType="TIMESTAMP" column="create_time"/>
+        <result property="updateTime" jdbcType="TIMESTAMP" column="update_time"/>
+        <result property="createPerson" jdbcType="VARCHAR" column="create_person"/>
+        <result property="auditStatus" jdbcType="INTEGER" column="audit_status"/>
+        <result property="auditPerson" jdbcType="VARCHAR" column="audit_person"/>
+        <result property="auditDate" jdbcType="TIMESTAMP" column="audit_date"/>
+        <result property="subjectTownName" jdbcType="VARCHAR" column="subjectTownName"/>
+        <result property="subjectVillageName" jdbcType="VARCHAR" column="subjectVillageName"/>
+        <result property="imgUrl" jdbcType="VARCHAR" column="img_url"/>
+    </resultMap>
+
+    <select id="findPageBreakByCondition" parameterType="com.nanhai.core.business.vo.SubjectInfoConditionVO"
+            resultMap="rm">
+        select a.id,a.subject_code,a.subject_year_total_value,
+        a.subject_name,a.subject_type,a.subject_industry,a.subject_linkman,a.subject_addr,a.subject_town_id,a.subject_village_id,
+        a.subject_tele,a.create_time,a.update_time,a.img_url,a.subject_base,a.subject_plan_id,a.subject_usc_code,a.subject_org_code,
+        (select area.administrative_name from nh_administrative_area area where a.subject_town_id=area.administrative_code )as subjectTownName,
+        (select area1.administrative_name from nh_administrative_area area1 where a.subject_village_id=area1.administrative_code )as subjectVillageName,
+        a.subject_person_num,a.subject_card,a.subject_main_product,a.subject_addr,a.subject_intro FROM nh_subject_info a
+        where   1=1
+        <if test="subjectIndustryList!=null ">
+            AND a.subject_industry IN (
+            <foreach collection="subjectIndustryList" item="subjectIndustry" separator=",">
+                #{subjectIndustry}
+            </foreach>
+            )
+        </if>
+
+        <if test="subjectInfo!=null">
+            <if test="subjectInfo.subjectName!=null and subjectInfo.subjectName!=''">
+                and a.subject_name like CONCAT('%',#{subjectInfo.subjectName ,jdbcType=VARCHAR},'%')
+            </if>
+            <if test="subjectInfo.subjectType!=null and subjectInfo.subjectType!=''">
+                and a.subject_type =#{subjectInfo.subjectType,jdbcType=INTEGER}
+            </if>
+
+            <if test="subjectInfo.subjectLinkman!=null and subjectInfo.subjectLinkman!=''">
+                and a.subject_linkman like CONCAT('%',#{subjectInfo.subjectLinkman , jdbcType=VARCHAR},'%')
+            </if>
+
+            <if test="subjectInfo.subjectTele!=null and subjectInfo.subjectTele!=''">
+                and a.subject_tele =#{subjectInfo.subjectTele, jdbcType=VARCHAR}
+            </if>
+            <if test="subjectInfo.subjectTownId!=null and subjectInfo.subjectTownId!=''">
+                and a.subject_town_id =#{subjectInfo.subjectTownId, jdbcType=VARCHAR}
+            </if>
+            <if test="subjectInfo.subjectVillageId!=null and subjectInfo.subjectVillageId!=''">
+                and a.subject_village_id =#{subjectInfo.subjectVillageId, jdbcType=VARCHAR}
+            </if>
+            <if test="subjectInfo.subjectAddr!=null and subjectInfo.subjectAddr!=''">
+                and a.subject_addr like CONCAT('%',#{subjectInfo.subjectAddr , jdbcType=VARCHAR},'%')
+            </if>
+            <if test="subjectInfo.subjectCard!=null and subjectInfo.subjectCard!=''">
+                and a.subject_card =#{subjectInfo.subjectCard , jdbcType=VARCHAR}
+            </if>
+        </if>
+        ORDER BY a.id desc
+    </select>
+
+
+
+    <select id="subjectTypeStatistics" resultType="com.nanhai.core.business.entity.Statistics" parameterType="com.nanhai.core.business.vo.StatisticsConditionVO" >
+
+        select ANY_VALUE(a.subject_type_name) as subjectTypeName,count(a.subject_type)as `subjectCount`
+        from nh_subject_info a
+        where 1=1
+        <choose>
+            <when test="userLevel==3">
+                <if test="townCode!=null and townCode!=''">
+                    and a.subject_town_id=#{townCode}
+                </if>
+            </when>
+            <when test="userLevel==4">
+                and a.subject_town_id=#{administrativeCode}
+                <if test="villageCode!=null and villageCode!=''">
+                    and a.subject_village_id=#{villageCode}
+                </if>
+            </when>
+            <when test="userLevel==5">
+                and a.subject_village_id=#{administrativeCode}
+            </when>
+        </choose>
+        GROUP BY a.subject_type
+
+    </select>
+
+</mapper>

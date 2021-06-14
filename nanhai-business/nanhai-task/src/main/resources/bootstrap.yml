@@ -1,0 +1,92 @@
+server:
+  port: 2500
+  tomcat:
+    uri-encoding: UTF-8
+
+spring:
+  application.name: nanhai-task
+
+  cloud:
+    config:
+      profile: dev
+      uri: http://nanhai-config-server
+
+  datasource:
+    druid:
+      connection-init-sqls: set names utf8mb4
+      driver-class-name: com.mysql.jdbc.Driver
+    type: com.alibaba.druid.pool.DruidDataSource
+    url: jdbc:mysql://42.193.106.21:3306/nanhai?useUnicode=true&characterEncoding=utf-8&autoReconnect=true&zeroDateTimeBehavior=convertToNull&allowMultiQueries=true&useSSL=false&allowPublicKeyRetrieval=true
+    username: root
+    password: sunshuqin960929
+    ####### Redis Config #######
+  redis:
+    database: 5
+    # Redis服务器地址
+    host: 119.28.8.158
+    # Redis服务器连接端口
+    port: 6379
+    # Redis服务器连接密码（默认为空）
+    password: qwe!@#123
+
+    ####### redis缓存服务配置 #######
+    session:
+      store-type: redis
+
+  # HTTP ENCODING
+  servlet:
+    multipart:
+      max-file-size: 50MB
+      max-request-size: 50MB
+  http:
+    encoding:
+      enabled: true
+      charset: UTF-8
+      force: true
+  messages:
+    encoding: UTF-8
+
+
+# MyBatis
+mybatis:
+  type-aliases-package: com.nanhai.core.persistence.beans
+  mapper-locations: classpath:/mybatis/*.xml
+#showSql
+logging:
+  level:
+    com:
+      debug
+
+# mapper
+mapper:
+  mappers:
+    - com.nanhai.core.plugin.BaseMapper
+  not-empty: false
+  identity: MYSQL
+# pagehelper
+pagehelper:
+  helper-dialect: mysql
+  reasonable: true
+  support-methods-arguments: true
+  params: count=countSql
+
+ipAddress: 127.0.0.1
+
+#service discovery url
+eureka:
+  instance:
+    hostname: localhost
+    prefer-ip-address: true
+    ip-address: 127.0.0.1
+  client:
+    register-with-eureka: true
+    fetch-registry: true 
+    service-url:
+      defaultZone: http://user:123@${ipAddress}:8260/eureka
+
+security:
+  oauth2:
+    resource:
+      id: nanhai-task
+      user-info-uri: http://${ipAddress}:8280/uaa/user/info
+      prefer-token-info: false

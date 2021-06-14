@@ -1,0 +1,3 @@
+#默认日志级别
+logging:
+  level.org.springframework: INFO

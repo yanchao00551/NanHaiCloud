@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.nanhai.modules.sys.mapper.NhSysUserMapper">
+
+
+    <resultMap id="rm" type="com.nanhai.core.persistence.beans.NhSysUser">
+        <result property="userId" jdbcType="BIGINT" column="user_id"/>
+        <result property="username" jdbcType="VARCHAR" column="username"/>
+        <result property="password" jdbcType="VARCHAR" column="password"/>
+        <result property="salt" jdbcType="VARCHAR" column="salt"/>
+        <result property="email" jdbcType="VARCHAR" column="email"/>
+        <result property="mobile" jdbcType="VARCHAR" column="mobile"/>
+        <result property="status" jdbcType="TINYINT" column="status"/>
+        <result property="createUserId" jdbcType="BIGINT" column="create_user_id"/>
+        <result property="createTime" jdbcType="TIMESTAMP" column="create_time"/>
+        <result property="updateTime" jdbcType="TIMESTAMP" column="update_time"/>
+        <result property="organId" jdbcType="BIGINT" column="organ_id"/>
+        <result property="organName" jdbcType="VARCHAR" column="organ_name"/>
+        <result property="organCode" jdbcType="VARCHAR" column="organ_code"/>
+        <result property="organParent" jdbcType="BIGINT" column="organ_parent"/>
+        <result property="realName" jdbcType="VARCHAR" column="real_name"/>
+        <result property="userLevel" jdbcType="INTEGER" column="user_level"/>
+        <result property="userLoginName" jdbcType="VARCHAR" column="user_login_name"/>
+        <result property="userAdministrativeCode" jdbcType="VARCHAR" column="user_administrative_code"/>
+        <result property="registerCard" jdbcType="VARCHAR" column="register_card"/>
+        <result property="registerTele" jdbcType="VARCHAR" column="register_tele"/>
+        <result property="userHead" jdbcType="VARCHAR" column="user_head"/>
+        <result property="administrativeName" jdbcType="VARCHAR" column="administrative_name"/>
+        <result property="administrativeHigh" jdbcType="VARCHAR" column="administrative_high" />
+
+    </resultMap>
+
+
+    <select id="findPageBreakByCondition" resultMap="rm" parameterType="com.nanhai.core.business.vo.SysUserConditionVO">
+        SELECT a.`user_id`, a.`username`, a.`salt`, a.`email`, a.`mobile`,
+        a.`status`, a.`create_user_id`, a.`create_time`,
+        a.`update_time`,a.`real_name`,a.`organ_id`,b.`organ_name`,b.`organ_code`,b.`organ_parent`,
+        c.`user_level`,c.`user_login_name`,
+        c.`user_administrative_code`,
+        area.administrative_high,
+        c.`register_card`,c.`register_tele`,
+        CONCAT((SELECT administrative_name FROM nh_administrative_area WHERE administrative_code = area.administrative_high),area.administrative_name) AS administrative_name
+        FROM nh_sys_user AS a
+        LEFT JOIN nh_organ AS b ON a.organ_id = b.id
+        LEFT JOIN nh_users as c ON a.user_id = c.user_id
+        left join nh_administrative_area as area on area.administrative_code=c.`user_administrative_code`
+        WHERE 2=2
+        <if test="keywords != null and keywords != '' ">
+            AND
+            (
+            a.username LIKE CONCAT('%',#{keywords , jdbcType=VARCHAR},'%') OR
+            a.real_name LIKE CONCAT('%',#{keywords , jdbcType=VARCHAR},'%')
+            )
+        </if>
+        <if test="status!=null">
+            AND a.`status`=#{status}
+        </if>
+        <if test="organId != null">
+            AND a.`organ_id` = #{organId}
+        </if>
+        <choose>
+            <when test="ids != null">
+                AND a.user_id IN (
+                <foreach collection="ids" item="userIds" separator=",">
+                    #{userIds}
+                </foreach>
+                )
+            </when>
+            <otherwise>
+                <if test="userId != null">
+                    AND a.user_id = #{userId}
+                </if>
+            </otherwise>
+        </choose>
+        ORDER BY
+        a.user_id DESC
+    </select>
+
+
+    <!-- 查询用户的所有权限 -->
+    <select id="queryAllPerms" resultType="string">
+        SELECT m.perms
+        FROM nh_sys_user_role ur
+                 LEFT JOIN nh_sys_role_menu rm ON ur.role_id = rm.role_id
+                 LEFT JOIN nh_sys_menu m ON rm.menu_id = m.menu_id
+        WHERE ur.user_id = #{userId}
+    </select>
+
+    <!-- 查询用户的所有菜单ID -->
+    <select id="queryAllMenuId" resultType="long">
+        SELECT DISTINCT rm.menu_id
+        FROM nh_sys_user_role ur
+                 LEFT JOIN nh_sys_role_menu rm ON ur.role_id = rm.role_id
+        WHERE ur.user_id = #{userId}
+    </select>
+
+    <select id="queryByUserName" resultType="com.nanhai.core.persistence.beans.NhSysUser">
+        SELECT a.username,
+               a.email,
+               a.mobile,
+               a.status,
+               a.create_user_id,
+               b.user_level,
+               b.user_login_name,
+               b.user_administrative_code
+        FROM nh_sys_user AS a
+                 LEFT JOIN users AS b ON a.user_id = b.user_id
+        WHERE username = #{username}
+    </select>
+
+
+    <select id="selectUserDetail" resultMap="rm" parameterType="Long">
+    SELECT a.`user_id`,
+           a.`username`,
+           a.`password`,
+           a.`salt`,
+           a.`email`,
+           a.`mobile`,
+           a.`status`,
+           a.`create_user_id`,
+           a.`real_name`,
+           a.`organ_id`,
+           b.`user_level`,
+           b.`user_login_name`,
+           b.`user_name`,
+           b.`user_administrative_code`,
+           b.`register_card`,
+           b.`register_code`,
+           b.`register_tele`,
+           b.`user_head`,
+           c.`administrative_code`,
+           c.`administrative_name`
+    FROM nh_sys_user AS a
+    LEFT JOIN nh_users AS b ON a.user_id = b.user_id
+    LEFT JOIN nh_administrative_area AS c ON b.user_administrative_code = c.administrative_code
+    WHERE 1=1
+    <if test="userId != null">
+        AND a.user_id = #{userId}
+    </if>
+    </select>
+
+
+
+</mapper>

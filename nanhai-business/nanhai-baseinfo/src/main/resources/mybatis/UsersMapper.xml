@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.nanhai.mapper.NhUsersMapper">
+  <resultMap id="BaseResultMap" type="com.nanhai.core.persistence.beans.NhUsers">
+    <!--
+      WARNING - @mbg.generated
+    -->
+    <id column="user_id" jdbcType="BIGINT" property="userId" />
+    <result column="user_level" jdbcType="INTEGER" property="userLevel" />
+    <result column="user_login_name" jdbcType="VARCHAR" property="userLoginName" />
+    <result column="real_name" jdbcType="VARCHAR" property="userName" />
+    <result column="user_administrative_code" jdbcType="VARCHAR" property="userAdministrativeCode" />
+    <result column="register_card" jdbcType="VARCHAR" property="registerCard" />
+    <result column="register_code" jdbcType="VARCHAR" property="registerCode" />
+    <result column="register_tele" jdbcType="VARCHAR" property="registerTele" />
+    <result column="register_audit_status" jdbcType="TINYINT" property="registerAuditStatus" />
+    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+    <result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
+    <result column="organ_id" jdbcType="BIGINT" property="organId" />
+    <result column="status" jdbcType="VARCHAR" property="status" />
+  </resultMap>
+
+  <select id="selectPage" resultMap="BaseResultMap">
+    SELECT c.real_name, a.*,b.administrative_name AS administrativeName,c.status FROM nh_users a
+    LEFT JOIN nh_administrative_area b ON a.`user_administrative_code`=b.`administrative_code`
+    LEFT JOIN nh_sys_user AS c ON a.user_id = c.user_id
+    WHERE    user_level IN(4,5)
+    <if test="userName!=null and userName!=''">
+      and c.real_name like concat('%',#{userName},'%')
+    </if>
+    <if test="registerAuditStatus!=null">
+      and a.register_audit_status=#{registerAuditStatus}
+    </if>
+  </select>
+
+</mapper>
