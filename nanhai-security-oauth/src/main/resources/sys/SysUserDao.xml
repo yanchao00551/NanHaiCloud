@@ -19,7 +19,7 @@
 	
 	<select id="queryByUserName" resultType="com.nanhai.securityoauth.sys.entity.SysUserEntity">
 		select a.user_id,a.username,a.password,a.email,a.mobile,a.status,a.create_user_id,
-		       b.user_level,b.user_login_name,b.user_administrative_code,b.user_head
+		       b.user_level,b.user_login_name,b.user_administrative_code
 		       from nh_sys_user as a left join nh_users as b on a.user_id = b. user_id where username = #{username}
 	</select>
 

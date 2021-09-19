@@ -29,5 +29,7 @@ public interface NhPictureService  extends AbstractService<NhPicture,Long> {
 
     Map<String,Object> insertPicture(String OssFileUrl);
 
+
+
     List<Picture> getPictureListById(PictureConditionVO idList);
 }

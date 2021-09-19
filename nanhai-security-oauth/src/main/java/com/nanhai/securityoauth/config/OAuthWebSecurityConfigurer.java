@@ -23,8 +23,7 @@ public class OAuthWebSecurityConfigurer extends WebSecurityConfigurerAdapter {
 
     @Autowired
     private UserDetailsServiceBean userDetailsServiceBean;
-    @Autowired
-    private PasswordEncoder passwordEncoder;
+
 
     @Bean
     @Override

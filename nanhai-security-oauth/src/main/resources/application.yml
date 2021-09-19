@@ -42,9 +42,9 @@ spring:
           config:
             multi-statement-allow: true
     type: com.alibaba.druid.pool.DruidDataSource
-    url: jdbc:mysql://42.193.106.21:3306/nanhai?useUnicode=true&characterEncoding=utf-8&autoReconnect=true&zeroDateTimeBehavior=convertToNull&allowMultiQueries=true&useSSL=false&allowPublicKeyRetrieval=true
+    url: jdbc:mysql://127.0.0.1:3306/nanhai?useUnicode=true&characterEncoding=utf-8&autoReconnect=true&zeroDateTimeBehavior=convertToNull&allowMultiQueries=true&useSSL=false&allowPublicKeyRetrieval=true
     username: root
-    password: sunshuqin960929
+    password: root
 
 
 
